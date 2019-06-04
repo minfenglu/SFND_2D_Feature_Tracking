@@ -1,0 +1,5 @@
+\frac{\partial I(x,y)}{\partial x} =I_{x} ,   \frac{\partial I(x,y)}{\partial y}=I_{y}
+E(\upsilon, \nu) = \sum_{(x,y)} w(x,y)[I(x,y) + I_{x}\upsilon + I_{u}\nu-I(x,y)]^{2}
+E(\upsilon, \nu) = \sum_{(x,y)} w(x,y)[ I_{x}\upsilon + I_{y}\nu]^{2}
+E(\upsilon, \nu) = \sum_{(x,y)} w(x,y)[ I_{x}^{2}\upsilon^{2} + I_{y}^{2}\nu}^{2} + 2I_{x}I_{y}\upsilon\nu]
+det(M) = \lambda_{1}\lambda_{2}
