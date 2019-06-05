@@ -1,4 +1,4 @@
-# SFND 2D Feature Tracking
+Â# SFND 2D Feature Tracking
 
 <img src="images/keypoints.png" width="820" height="248" />
 
@@ -239,3 +239,129 @@ cv::waitKey(0);
   * Multiple features are detected adjacent to one another.
 
 First 3 points are addressed with a machine learning approach. Last one is addressed using non-maximal suppression.
+
+
+## Patch Descriptors
+
+## SIFT Descriptor
+
+## SURF Descriptor
+
+## Binary Descriptors
+A binary descriptor is composed of three parts:
+* **A sampling pattern**: where to sample points in the region around descriptor
+* **Orientation compensation**: some mechanism to measure the orientation of the keypoint and rotate it to compensate for rotation changes  
+* **Sampling pairs**: which pairs to compare when building the final descriptor
+
+|               | Sampling Pattern | Orientation Calculation| Sampling Pair
+| ------------- | ------------- |----------------|-----------|
+| **BRIEF** | None  | None| Random|
+| **ORB**   | None  | Moments| Learned Pairs|
+| **BRISK** | 	Concentric circles with more points on outer rings  | Comparing gradients of long pairs | Using only short pairs|
+| **FREAK** |  	Overlapping Concentric circles with more points on inner rings | Comparing gradients of preselected 45 pairs.| Learned pairs.|
+
+
+
+<a href="https://gilscvblog.com/2013/11/08/a-tutorial-on-binary-descriptors-part-4-the-brisk-descriptor/">Reference</a>
+## BRIEF Descriptor
+<a href="https://www.cs.ubc.ca/~lowe/525/papers/calonder_eccv10.pdf">Original Paper</a>
+
+BRIEF takes only information at single pixel location to build descriptor, so Gaussian filter is used to make it less sensitive to noise. BRIEF does not have a sampling pattern so pairs can be chosen at any point on the patch. To build a descriptor of length n, we need n pairs (<img src="formulas/BRIEF/Xi.png" width="15" height="15" />,<img src="formulas/BRIEF/Yi.png" width="15" height="15" />). Let X, Y be vectors of point <img src="formulas/BRIEF/Xi.png" width="15" height="15" /> and <img src="formulas/BRIEF/Yi.png" width="15" height="15" />, respectively
+
+Here are five methods to determine pixel point:
+* X, Y are randomly uniformly sampled
+* X, Y are randomly sampled using a Gaussia distribution (locations closer to the center pf the patch are preferred)
+* X, Y are randomly sampled using a Gaussian distribution where first X is sampled with a standard deviation of <img src="formulas/BRIEF/std_dev.png" width="45" height="15" />and then <img src="formulas/BRIEF/Yi.png" width="15" height="15" />'s are sampled using a Gaussian distribution (each <img src="formulas/BRIEF/Yi.png" width="15" height="15" /> is sampled with mean <img src="formulas/BRIEF/Xi.png" width="15" height="15" /> and standard devisiont of <img src="formulas/BRIEF/std_dev_2.png" width="45" height="15" />)
+* X and Y are randomly sampled from discrete location of a coarse polar grid
+* For each i, <img src="formulas/BRIEF/Xi.png" width="15" height="15" /> is (0,0) and <img src="formulas/BRIEF/Yi.png" width="15" height="15" /> takes all possible values on a coarse polar grid
+
+<img src="formulas/BRIEF/BRIEF_Sample.jpg" width="500" height="400" />
+
+<br/>
+<br/>
+<br/>
+
+<img src="formulas/BRIEF/BRIEF_Recognition.jpg" width="600" height="400" />
+
+## ORB Descriptor
+
+Two main differences between BRIEF and ORB:
+* ORB uses an orientation compensation mechanism, making it rotation invariant
+* ORB learns the optimal sampling pairs, whereas BRIEF uses randomly chosen sampling pairs
+
+
+
+### Orientation Compensation
+ORB uses intensity centroid as a measrue of corner orientation.
+The **moments** of a patch are defined as:
+
+<img src="formulas/ORB/ORB_Orient_1.jpg" width="250" height="80" />
+
+<br/>
+<br/>
+Then centroid (center of mass) of the patch is
+<br/>
+
+<img src="formulas/ORB/ORB_Orient_2.jpg" width="200" height="80" />
+<br/>
+<br/>
+The orientation of the patch is
+<br/>
+<img src="formulas/ORB/ORB_Orient_3.jpg" width="200" height="35" />
+<br/>
+<br/>
+Illustration
+<br/>
+<img src="formulas/ORB/ORB_Orient_4.jpg" width="240" height="200" />
+
+
+Once we have calculated the orientation of the patch, we can rotate it to a canonical rotation and then compute the descriptor, thus obtaining some rotation invariance.
+
+### Learning Sampling Pairs
+We want our sampling pairs to have two properties:
+* uncorrelation: so that each new pair will bring new information to the descriptor, to maximize the amount of information the descriptor carries
+* high variance of pairs: to make a feature more discriminative
+
+
+There are about 205,000 possible tests (sampling pairs) to consider. However, only 256 tests will be chosen.
+
+The learning is done as follows:
+* First set a training set of about 300,000 keypoints drawn from the PASCAL 2006 dataset
+* Second apply the following greedy algorithm:
+    * run each test against all training pathces
+    * order the tests by their distance from a mean of 0.5, forming vector T
+    * greedy search
+        * put the first test into the result vector R and remove it from T
+        * take the next test from T and compare it against all tess in R. If its absolute correlation is greater than a threshold, discard it, otherwise, add it to R
+        * Repeat the previous step until there are 256 tests in R. If there are less than 256 tests raise the threshold and try again
+
+In the end, we will have a set of 256 relatively uncorrelated tests with high variance.
+
+in non-geometric transformation (those that are image capture dependent and do not rely on the viewpoint, such as blur, JPEG compression, exposure and illumination) BRIEF actually outperforms ORB. In affine transformation, BRIEF perform poorly under large rotation or scale change as it’s not designed to handle such changes. In perspective transformations, which are the result of view-point change, BRIEF surprisingly slightly outperforms ORB.
+
+<a href="https://gilscvblog.com/2013/10/04/a-tutorial-on-binary-descriptors-part-3-the-orb-descriptor/">Reference</a>
+## BRISK Descriptor
+
+The BRISK descriptor is different from BRIEF and ORB by having a hand=crafted sampling pattern.
+
+When considering each sampling point, we take a small pathch around it and apply Gaussian smoothing. The red circle illustrates the size of the standard deviation of the Gaussian filter applied to each sampling point.
+
+<img src="formulas/BRISK/BRISK_1.png" width="400" height="400" />
+
+### Short and long distance pairs:
+Short pairs are pairs of sampling points that the distance is below a certain threshold <img src="formulas/BRISK/d_max.png" width="30" height="15" />. Short pairs are used for the intensity comparisons that build the descriptor.
+
+Long pairs are pairs of sampling points that the distance is above a certain threshold <img src="formulas/BRISK/d_min.png" width="30" height="15" />. Long pairs are used to determine orientation.
+
+(<img src="formulas/BRISK/d_min.png" width="30" height="15" /> > <img src="formulas/BRISK/d_max.png" width="30" height="15" /> so there are no short pairs that are also long pairs)
+
+<a href="https://gilscvblog.com/2013/11/08/a-tutorial-on-binary-descriptors-part-4-the-brisk-descriptor/">Reference</a>
+
+## FREAK Descriptor
+<img src="formulas/FREAK/FREAK_1.png" width="400" height="400" />
+
+<br/>
+<br/>
+<br/>
+<br/>
+<img src="formulas/FREAK/FREAK_2.jpg" width="400" height="400" />
