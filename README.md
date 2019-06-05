@@ -216,3 +216,26 @@ cv::namedWindow(windowName, 1);
 imshow(windowName, visImage);
 cv::waitKey(0);
 ```
+
+
+## FAST Corner Detector
+(Features from Accelerated Segment Test)
+
+<a href="https://www.edwardrosten.com/work/rosten_2006_machine.pdf">Original Paper</a>
+
+* Select pixel p with intensity <img src="formulas/FAST/Ip.png" width="15" height="15" />
+* Select appropriate threshold value t
+* Consider a circle of 16 pixels around the pixel under test
+
+<img src="formulas/FAST/FAST_1.jpg" width="900" height="400" />
+
+* The pixel p isa corner if there exists a set of n contiguous pixels in the circle of 16 pixles which are all brigher than  <img src="formulas/FAST/Ip.png" width="15" height="15" /> + t, or all darker than  <img src="formulas/FAST/Ip.png" width="15" height="15" /> - t
+
+* A high-speed test was proposed to exclude a large number of non-corners. This test examines four pixels at 1, 9, 5 and 13. (First 1 and 9 are tested if they are too brighter or darker. If so, then checks 5 and 13) If p is a corner, then at least three of these must all be brighter than <img src="formulas/FAST/Ip.png" width="15" height="15" />  + t or darker than <img src="formulas/FAST/Ip.png" width="15" height="15" />  − t. If neither of these is the case, then p cannot be a corner. The full segment test criterion can then be applied to the passed candidates by examining all pixels in the circle. This detector in itself exhibits high performance, but there are several weaknesses:
+
+  * It does not reject as many candidates for n < 12.
+  * The choice of pixels is not optimal because its efficiency depends on ordering of the questions and distribution of corner appearances.
+  * Results of high-speed tests are thrown away.
+  * Multiple features are detected adjacent to one another.
+
+First 3 points are addressed with a machine learning approach. Last one is addressed using non-maximal suppression.
