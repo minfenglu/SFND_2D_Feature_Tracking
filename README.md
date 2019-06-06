@@ -341,6 +341,7 @@ in non-geometric transformation (those that are image capture dependent and do n
 
 <a href="https://gilscvblog.com/2013/10/04/a-tutorial-on-binary-descriptors-part-3-the-orb-descriptor/">Reference</a>
 ## BRISK Descriptor
+<a href="http://margaritachli.com/papers/ICCV2011paper.pdf">Original Paper</a>
 
 The BRISK descriptor is different from BRIEF and ORB by having a hand=crafted sampling pattern.
 
@@ -358,6 +359,8 @@ Long pairs are pairs of sampling points that the distance is above a certain thr
 <a href="https://gilscvblog.com/2013/11/08/a-tutorial-on-binary-descriptors-part-4-the-brisk-descriptor/">Reference</a>
 
 ## FREAK Descriptor
+<a href="https://infoscience.epfl.ch/record/175537/files/2069.pdf">Original Paper</a>
+
 <img src="formulas/FREAK/FREAK_1.png" width="400" height="400" />
 
 <br/>
@@ -365,3 +368,5 @@ Long pairs are pairs of sampling points that the distance is above a certain thr
 <br/>
 <br/>
 <img src="formulas/FREAK/FREAK_2.jpg" width="400" height="400" />
+
+<a href="https://gilscvblog.com/2013/12/09/a-tutorial-on-binary-descriptors-part-5-the-freak-descriptor/">Reference</a>
