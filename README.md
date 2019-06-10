@@ -361,12 +361,30 @@ Long pairs are pairs of sampling points that the distance is above a certain thr
 ## FREAK Descriptor
 <a href="https://infoscience.epfl.ch/record/175537/files/2069.pdf">Original Paper</a>
 
+FREAK uses retinal sampling grid. It has higher density of points near the center and the density of points drop exponentially.
+
+<br/>
+
 <img src="formulas/FREAK/FREAK_1.png" width="400" height="400" />
 
 <br/>
 <br/>
-<br/>
-<br/>
+
+
+FREAK follows ORB's approach and tries to learn the pairs by maximizing variance of hte pairs by maximizing variance of hte pairs and taking pairs that are not correlated.
+
+There is a structure in the resulting pairs – a coarse-to-fine approach which matches our understanding of the model of the human retina. The first pairs that are selected mainly compare sampling points in the outer rings of the pattern where the last pairs compare mainly points in the inner rings of the pattern. This is similar to the way the human eye operates, as it first use the perifoveal receptive fields to estimate the location of an object of interest. Then, the validation is performed with the more densely distributed receptive fields in the fovea area.
+
+The sampling pairs are illustrated as follows:
+
 <img src="formulas/FREAK/FREAK_2.jpg" width="400" height="400" />
+
+
+FREAKS takes advantage of this coarse-to-fine structure to further speed up the matching using a cascade approach: when matching two descriptors, we first compare only the first 128 bits. If the distance is smaller than a threshold, we further continue the comparison to the next 128 bits. As a result, a cascade of comparisons is performed accelerating even further the matching as more than 90% of the candidates are discarded with the first 128 bits of the descriptor.
+
+### Orientation Assignment
+REAK’s mechanism for measuring the orientation is similar to that of BRISK only that instead of using long distance pairs, FREAK uses a predefined set of 45 symmetric sampling pairs:
+
+<img src="formulas/FREAK/FREAK_3.jpg" width="300" height="300" />
 
 <a href="https://gilscvblog.com/2013/12/09/a-tutorial-on-binary-descriptors-part-5-the-freak-descriptor/">Reference</a>
