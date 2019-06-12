@@ -240,6 +240,28 @@ cv::waitKey(0);
 
 First 3 points are addressed with a machine learning approach. Last one is addressed using non-maximal suppression.
 
+### C++ Code
+
+```c++
+int threshold = 30;                                                              
+bool bNMS = true;                                                                
+cv::FastFeatureDetector::DetectorType type = cv::FastFeatureDetector::TYPE_9_16; // TYPE_9_16, TYPE_7_12, TYPE_5_8
+cv::Ptr<cv::FeatureDetector> detector = cv::FastFeatureDetector::create(threshold, bNMS, type);
+
+vector<cv::KeyPoint> kptsFAST;
+detector->detect(imgGray, kptsFAST);
+
+visImage = img.clone();
+cv::drawKeypoints(img, kptsFAST, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+windowName = "FAST Results";
+cv::namedWindow(windowName, 2);
+imshow(windowName, visImage);
+cv::waitKey(0);
+
+```
+
+
+```cv::FastFeatureDetector::TYPE_9_16``` indicates that 9 out of 16 points should be either all brighter or all darker than the center point
 
 ## Patch Descriptors
 
